@@ -62,7 +62,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const upgrade = autoClickers[upgradeKey];
         const upgradeItem = document.querySelector(`.upgrade-button[data-upgrade="${upgradeKey}"]`).parentElement;
         upgradeItem.querySelector('.upgrade-level').textContent = upgrade.level;
-        upgradeItem.querySelector('.upgrade-rate').textContent = upgrade.currentRate.toFixed(1);
+        if (upgradeKey === 'gym') {
+            upgradeItem.querySelector('.upgrade-rate').textContent = `Power tap ${clickStrength.toFixed(1)}`;
+        } else {
+            upgradeItem.querySelector('.upgrade-rate').textContent = `${upgrade.currentRate.toFixed(1)} Young coin - sec`;
+        }
     };
 
     upgradeButtons.forEach(button => {
@@ -156,27 +160,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 4000);
 
     // Add click event to the characters
-    const createCoinAnimation = (character, clickStrength) => {
+    const createCoinAnimation = (x, y, clickStrength) => {
         const coinAnimation = document.createElement('div');
         coinAnimation.classList.add('coin-animation');
         coinAnimation.innerHTML = `<img src="assets/images/coins.svg" alt="Coin"> <span class="coin-value">+${clickStrength}</span>`;
-        coinAnimation.style.left = `${Math.random() * 80}%`;
-        coinAnimation.style.top = `${Math.random() * 80}%`;
-        character.appendChild(coinAnimation);
-        coinAnimation.addEventListener('animationend', () => {
-            coinAnimation.remove();
-        });
+        coinAnimation.style.left = `${x}px`;
+        coinAnimation.style.top = `${y}px`;
+        document.body.appendChild(coinAnimation);
+        setTimeout(() => {
+            coinAnimation.classList.add('coin-fade-out');
+            setTimeout(() => {
+                coinAnimation.remove();
+            }, 1000);
+        }, 1000);
     };
 
-    characterHer.addEventListener('click', () => {
+    characterHer.addEventListener('click', (event) => {
+        const rect = characterHer.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
         coins += clickStrength;
         updateCoinAmount();
-        createCoinAnimation(characterHer, clickStrength);
+        createCoinAnimation(x, y, clickStrength);
     });
 
-    characterHim.addEventListener('click', () => {
+    characterHim.addEventListener('click', (event) => {
+        const rect = characterHim.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
         coins += clickStrength;
         updateCoinAmount();
-        createCoinAnimation(characterHim, clickStrength);
+        createCoinAnimation(x, y, clickStrength);
     });
 });
